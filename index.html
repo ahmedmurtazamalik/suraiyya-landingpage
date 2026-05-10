@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suraiyya - ADHD Productivity App for Neurodivergent Adults</title>
+  <meta name="description" content="Focus app for ADHD adults with body doubling, mood tracking, and distraction blocking. Built by people who understand ADHD.">
+  <link rel="icon" type="image/png" href="/s_logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #6B5B95;
+      --color-primary-light: #9B8CBF;
+      --color-primary-dark: #4A3F6B;
+      --color-accent: #D4A5D4;
+      --color-bg-deep: #1E1E2E;
+      --color-bg-primary: #252538;
+      --color-bg-card: #2A2A40;
+      --color-bg-elevated: #323250;
+      --color-text-primary: #f7f7f7;
+      --color-text-secondary: rgba(247, 247, 247, 0.7);
+      --color-text-muted: rgba(247, 247, 247, 0.4);
+      --color-border: rgba(212, 165, 212, 0.1);
+      --color-border-accent: rgba(212, 165, 212, 0.25);
+      --font-heading: 'Syne', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-deep);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(212, 165, 212, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212, 165, 212, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+    }
+
+    .bg-glow.top { top: -200px; right: -200px; background: var(--color-primary); }
+    .bg-glow.bottom { bottom: -200px; left: -200px; background: var(--color-accent); }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      transition: all 0.3s ease;
+      background: transparent;
+    }
+
+    .navbar.scrolled {
+      background: rgba(30, 30, 46, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .nav-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-content {
+      position: relative;
+    }
+
+    .nav-logo {
+      position: absolute;
+      left: 0;
+    }
+
+    .nav-links {
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-actions {
+      position: absolute;
+      right: 0;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--color-text-primary);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .logo-img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--color-text-primary);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-primary, .btn-ghost, .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-primary-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(107, 91, 149, 0.3);
+    }
+
+    .btn-ghost {
+      background-color: transparent;
+      color: var(--color-text-secondary);
+      border: 1px solid transparent;
+    }
+
+    .btn-ghost:hover {
+      color: var(--color-text-primary);
+      background: rgba(212, 165, 212, 0.05);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-accent);
+    }
+
+    .btn-outline:hover {
+      background: rgba(212, 165, 212, 0.1);
+      border-color: var(--color-accent);
+    }
+
+    .btn-large {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+    }
+
+    .hero-section {
+      position: relative;
+      padding: 8rem 2rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      align-items: center;
+      z-index: 1;
+    }
+
+    @media (min-width: 768px) {
+      .hero-section {
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        padding: 10rem 2rem 6rem;
+      }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(107, 91, 149, 0.15);
+      color: var(--color-accent);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid var(--color-border-accent);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 1.5rem;
+      color: var(--color-text-primary);
+    }
+
+    @media (min-width: 768px) {
+      .hero-title {
+        font-size: 3.5rem;
+      }
+    }
+
+    .highlight {
+      color: var(--color-accent);
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      margin-bottom: 2rem;
+      max-width: 90%;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-caption {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    .hero-visual {
+      position: relative;
+    }
+
+    .dashboard-mockup {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 165, 212, 0.1);
+    }
+
+    .mockup-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      background: rgba(30, 30, 46, 0.8);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .mockup-dots {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .mockup-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .mockup-dots span:nth-child(1) { background: #ff5f57; }
+    .mockup-dots span:nth-child(2) { background: #febc2e; }
+    .mockup-dots span:nth-child(3) { background: #28c840; }
+
+    .mockup-title {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .mockup-content {
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .mockup-card {
+      background: rgba(42, 42, 64, 0.6);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .mockup-card.wide {
+      grid-column: 1 / -1;
+    }
+
+    .mockup-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .mockup-timer {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      text-align: center;
+      margin: 0.5rem 0;
+    }
+
+    .mockup-progress {
+      height: 6px;
+      background: rgba(212, 165, 212, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .mockup-progress-bar {
+      height: 100%;
+      width: 60%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      border-radius: 3px;
+      animation: progressPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes progressPulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    .mockup-mood {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .mood-emoji {
+      font-size: 2rem;
+    }
+
+    .mood-label {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+
+    .mockup-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+      height: 60px;
+      justify-content: center;
+    }
+
+    .mockup-bars .bar {
+      width: 20px;
+      background: var(--color-primary);
+      border-radius: 4px 4px 0 0;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+
+    .mockup-bars .bar.active {
+      opacity: 1;
+      background: var(--color-accent);
+    }
+
+    .section {
+      position: relative;
+      padding: 5rem 2rem;
+      z-index: 1;
+    }
+
+    @media (min-width: 768px) {
+      .section {
+        padding: 6rem 2rem;
+      }
+    }
+
+    .section-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+      margin-bottom: 1rem;
+      color: var(--color-text-primary);
+    }
+
+    @media (min-width: 768px) {
+      .section-title {
+        font-size: 2.5rem;
+      }
+    }
+
+    .section-subtitle {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .pain-points {
+      background: rgba(42, 42, 64, 0.3);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .pain-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .pain-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .pain-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .pain-card:hover {
+      border-color: var(--color-border-accent);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(107, 91, 149, 0.15), 0 0 0 1px rgba(212, 165, 212, 0.2);
+    }
+
+    .pain-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(107, 91, 149, 0.15);
+      border: 1px solid var(--color-border-accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      color: var(--color-accent);
+      transition: all 0.3s ease;
+    }
+
+    .pain-card:hover .pain-icon {
+      transform: scale(1.1) rotate(-5deg);
+      background: rgba(212, 165, 212, 0.2);
+    }
+
+    .pain-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--color-text-primary);
+    }
+
+    .pain-card p {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .feature-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .feature-card:hover {
+      border-color: var(--color-border-accent);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(107, 91, 149, 0.15), 0 0 0 1px rgba(212, 165, 212, 0.2);
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.1) rotate(5deg);
+      background: rgba(212, 165, 212, 0.2);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(107, 91, 149, 0.15);
+      border: 1px solid var(--color-border-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      color: var(--color-accent);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--color-text-primary);
+    }
+
+    .feature-card p {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    .how-it-works {
+      background: rgba(42, 42, 64, 0.3);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .steps-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .step-card {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 1.25rem;
+      padding: 2rem;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .step-card:hover {
+      border-color: var(--color-border-accent);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(107, 91, 149, 0.15), 0 0 0 1px rgba(212, 165, 212, 0.2);
+    }
+
+    .how-it-works .step-number {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--color-accent);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 3rem;
+      text-align: left;
+    }
+
+    .step-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .step-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .step-card p {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .testimonials-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .testimonial-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .testimonial-card:hover {
+      border-color: var(--color-border-accent);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(107, 91, 149, 0.15), 0 0 0 1px rgba(212, 165, 212, 0.2);
+    }
+
+    .testimonial-stars {
+      display: flex;
+      gap: 0.25rem;
+      color: var(--color-accent);
+      margin-bottom: 1rem;
+    }
+
+    .testimonial-quote {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--color-text-primary);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+    }
+
+    .author-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .author-name {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--color-text-primary);
+    }
+
+    .author-role {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .cta-section {
+      padding: 3rem 2rem 5rem;
+    }
+
+    .cta-card {
+      background: linear-gradient(135deg, rgba(107, 91, 149, 0.2), rgba(42, 42, 64, 0.6));
+      border: 1px solid var(--color-border-accent);
+      border-radius: 24px;
+      padding: 4rem 2rem;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .cta-card h2 {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--color-text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .cta-card p {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-note {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    .footer {
+      background: rgba(30, 30, 46, 0.8);
+      border-top: 1px solid var(--color-border);
+      padding: 4rem 2rem 2rem;
+      z-index: 1;
+      position: relative;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    @media (min-width: 768px) {
+      .footer-content {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
+
+      .footer-links {
+        justify-content: flex-end;
+        justify-items: end;
+        text-align: right;
+      }
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      width: 40px;
+      height: 40px;
+    }
+
+    .footer-brand p {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      max-width: 300px;
+    }
+
+    .footer-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      justify-content: flex-end;
+    }
+
+    .footer-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-column h4 {
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-column a {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-column a:hover {
+      color: var(--color-accent);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+    }
+
+    .footer-bottom p {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    @media (min-width: 768px) {
+      .nav-links {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .section-title {
+        font-size: 1.75rem;
+      }
+
+      .cta-card h2 {
+        font-size: 1.5rem;
+      }
+
+      .hero-ctas,
+      .cta-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .mockup-content {
+        grid-template-columns: 1fr;
+      }
+
+      .mockup-card.wide {
+        grid-column: 1;
+      }
+    }
+
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .scroll-reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow top"></div>
+  <div class="bg-glow bottom"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-content">
+      <a href="/" class="nav-logo">
+        <img src="s_logo.png" alt="Suraiyya" class="logo-img">
+        <span>Suraiyya</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#testimonials">Reviews</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="https://suraiyya.vercel.app/login" class="btn-ghost">Sign in</a>
+        <a href="https://suraiyya.vercel.app/register" class="btn-primary">Get started</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem;">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        ADHD productivity app for neurodivergent adults
+      </div>
+
+      <h1 class="hero-title">
+        Focus app for ADHD adults<br>
+        <span class="highlight">that actually works</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Neurodivergent productivity tool with body doubling, mood tracking,
+        and distraction blocking — built by people who understand ADHD.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="https://suraiyya.vercel.app/register" class="btn-primary btn-large">
+          Try Suraiyya free
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <a href="https://suraiyya.vercel.app/login" class="btn-outline btn-large">Sign in</a>
+      </div>
+
+      <p class="hero-caption">
+        No credit card required. Free plan includes focus timer, mood tracker, and body doubling.
+      </p>
+    </div>
+
+    <div class="hero-visual">
+      <div class="dashboard-mockup">
+        <div class="mockup-header">
+          <div class="mockup-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="mockup-title">Suraiyya Dashboard</span>
+        </div>
+        <div class="mockup-content">
+          <div class="mockup-card">
+            <div class="mockup-card-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <span>Focus Session</span>
+            </div>
+            <div class="mockup-timer">25:00</div>
+            <div class="mockup-progress">
+              <div class="mockup-progress-bar"></div>
+            </div>
+          </div>
+          <div class="mockup-card">
+            <div class="mockup-card-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span>Mood Today</span>
+            </div>
+            <div class="mockup-mood">
+              <span class="mood-emoji">😊</span>
+              <span class="mood-label">Focused</span>
+            </div>
+          </div>
+          <div class="mockup-card wide">
+            <div class="mockup-card-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span>Weekly Progress</span>
+            </div>
+            <div class="mockup-bars">
+              <div class="bar" style="height: 40%"></div>
+              <div class="bar" style="height: 70%"></div>
+              <div class="bar" style="height: 55%"></div>
+              <div class="bar active" style="height: 90%"></div>
+              <div class="bar" style="height: 60%"></div>
+              <div class="bar" style="height: 45%"></div>
+              <div class="bar" style="height: 75%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pain-points" id="pain-points">
+    <div class="section-content">
+      <div class="section-header scroll-reveal">
+        <h2 class="section-title">Do you relate?</h2>
+        <p class="section-subtitle">Suraiyya was built for the realities of ADHD and neurodivergence</p>
+      </div>
+
+      <div class="pain-grid">
+        <div class="pain-card scroll-reveal">
+          <div class="pain-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3>Executive Dysfunction</h3>
+          <p>Can't start tasks even when you know what to do? Our ADHD task management breaks overwhelm into tiny, actionable steps.</p>
+        </div>
+        <div class="pain-card scroll-reveal">
+          <div class="pain-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3>ADHD Burnout</h3>
+          <p>Pushed too hard and crashed? Suraiyya includes self-care tracking and burnout prevention built for neurodivergent brains.</p>
+        </div>
+        <div class="pain-card scroll-reveal">
+          <div class="pain-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3>Time Blindness</h3>
+          <p>Hours disappear without warning? Our focus timer for ADHD and Pomodoro app for ADHD create gentle time awareness.</p>
+        </div>
+        <div class="pain-card scroll-reveal">
+          <div class="pain-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Endless Distractions</h3>
+          <p>Social media hijacked your afternoon? Our distraction blocker for ADHD keeps you in the zone when it matters.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section features" id="features">
+    <div class="section-content">
+      <div class="section-header scroll-reveal">
+        <h2 class="section-title">Everything you need to <span class="highlight">thrive</span></h2>
+        <p class="section-subtitle">Productivity tools for neurodivergent professionals, designed with empathy</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Virtual Body Doubling</h3>
+          <p>Body doubling app online — work alongside others in real-time video sessions. The accountability you need, virtually.</p>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <h3>ADHD Mood Tracker</h3>
+          <p>Track emotional patterns alongside productivity. Understand how mood impacts focus and energy.</p>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <h3>Focus Timer for ADHD</h3>
+          <p>Pomodoro app for ADHD with flexible intervals. Work with your brain, not against it.</p>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3>Website Blocker</h3>
+          <p>Block distracting sites during focus sessions. Customizable blocking that adapts to your needs.</p>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3>AI Task Breakdown</h3>
+          <p>Overwhelmed by big projects? Our AI breaks tasks into ADHD-friendly micro-steps automatically.</p>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3>ADHD Journal</h3>
+          <p>ADHD journal app for reflection and pattern recognition. Journal without judgment.</p>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <h3>Self-Care Tracker</h3>
+          <p>ADHD habit tracker that celebrates consistency, not perfection. Build routines that stick.</p>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <h3>Gamified Focus</h3>
+          <p>Earn rewards, level up your virtual pet, and make productivity feel like play — not punishment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section how-it-works" id="how-it-works">
+    <div class="section-content">
+      <div class="section-header scroll-reveal">
+        <h2 class="section-title">How to manage ADHD at work</h2>
+        <p class="section-subtitle">A simple routine that works with your brain</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card scroll-reveal">
+          <span class="step-number">01</span>
+          <div class="step-content">
+            <h3>Set Your Intention</h3>
+            <p>How to stay focused with ADHD at work? Start with one clear goal. Suraiyya helps you articulate what matters most right now.</p>
+          </div>
+        </div>
+        <div class="step-card scroll-reveal">
+          <span class="step-number">02</span>
+          <div class="step-content">
+            <h3>Start a Focus Session</h3>
+            <p>Best app for adults with ADHD? Launch a timed focus session with optional body doubling. Block distractions automatically.</p>
+          </div>
+        </div>
+        <div class="step-card scroll-reveal">
+          <span class="step-number">03</span>
+          <div class="step-content">
+            <h3>Reflect & Adjust</h3>
+            <p>How to avoid burnout with ADHD? Track your mood, energy, and progress. Suraiyya learns what works for YOUR brain.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section testimonials" id="testimonials">
+    <div class="section-content">
+      <div class="section-header scroll-reveal">
+        <h2 class="section-title">Loved by <span class="highlight">neurodivergent</span> people</h2>
+        <p class="section-subtitle">Mental wellness for neurodivergent people, one focus session at a time</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card scroll-reveal">
+          <div class="testimonial-stars">
+            ★★★★★
+          </div>
+          <p class="testimonial-quote">"Finally, an app that understands ADHD. Suraiyya doesn't shame me for how my brain works — it works WITH me."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">S</div>
+            <div class="author-info">
+              <span class="author-name">Sarah M.</span>
+              <span class="author-role">Software Developer with ADHD</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card scroll-reveal">
+          <div class="testimonial-stars">
+            ★★★★★
+          </div>
+          <p class="testimonial-quote">"The body doubling feature changed my life. I went from struggling to work 2 hours to consistent 6-hour focus days."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">J</div>
+            <div class="author-info">
+              <span class="author-name">James K.</span>
+              <span class="author-role">Freelance Designer, Autistic + ADHD</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card scroll-reveal">
+          <div class="testimonial-stars">
+            ★★★★★
+          </div>
+          <p class="testimonial-quote">"A productivity app that doesn't overwhelm. Simple, calm, and genuinely ADHD-friendly. I've tried them all — this is the one."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">A</div>
+            <div class="author-info">
+              <span class="author-name">Alex R.</span>
+              <span class="author-role">Graduate Student</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section cta-section">
+    <div class="section-content">
+      <div class="cta-card scroll-reveal">
+        <h2>Ready to start your focus session?</h2>
+        <p>
+          Join thousands of neurodivergent adults who've found their calm productivity app.
+          ADHD self-care routine app meets workplace productivity.
+        </p>
+        <div class="cta-buttons">
+          <a href="https://suraiyya.vercel.app/register" class="btn-primary btn-large">
+            Start your focus session
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a href="https://suraiyya.vercel.app/register" class="btn-outline btn-large">Sign up for free</a>
+        </div>
+        <p class="cta-note">
+          Sensory-friendly productivity app. No overwhelm. No guilt. Just progress.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="s_logo.png" alt="Suraiyya" class="footer-logo">
+        <p>ADHD workplace app built with empathy for neurodivergent brains.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#testimonials">Reviews</a>
+        </div>
+        <div class="footer-column">
+          <h4>Company</h4>
+          <a href="about.html">About</a>
+          <a href="blog.html">Blog</a>
+          <a href="contact.html">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>2026 Suraiyya. Calm productivity app for ADHD adults.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Scroll reveal animation
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-reveal').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
