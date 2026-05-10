@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://getsuraiyya.vercel.app/sitemap.xml
